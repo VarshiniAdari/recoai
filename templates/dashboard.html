@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — RecoAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --ink: #09090b; --ink2: #18181b; --surface: #f4f4f5;
+            --bg: #ffffff; --muted: #71717a; --muted2: #a1a1aa;
+            --border: #e4e4e7; --accent: #2563eb; --accent2: #7c3aed;
+            --gold: #f59e0b; --green: #10b981; --red: #ef4444;
+            --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+            --sidebar-w: 260px;
+        }
+        body { font-family: var(--font-body); background: var(--surface); color: var(--ink); min-height: 100vh; display: flex; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w); flex-shrink: 0;
+            background: var(--ink); min-height: 100vh;
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 28px 24px 24px;
+            font-family: var(--font-display); font-size: 22px; font-weight: 800;
+            color: white; letter-spacing: -0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo span { color: #60a5fa; }
+
+        .sidebar-user {
+            padding: 20px 24px;
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .user-avatar {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 16px; color: white; flex-shrink: 0;
+        }
+
+        .user-info .user-name { font-size: 14px; font-weight: 600; color: white; }
+        .user-info .user-email { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; border-radius: 10px;
+            font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.5);
+            text-decoration: none; transition: all 0.15s; cursor: pointer;
+        }
+
+        .nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+        .nav-item.active { background: rgba(37,99,235,0.2); color: white; }
+        .nav-item.active .nav-icon { color: #60a5fa; }
+
+        .nav-icon { font-size: 18px; width: 20px; text-align: center; }
+
+        .nav-section-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+            text-transform: uppercase; color: rgba(255,255,255,0.2);
+            padding: 16px 14px 8px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            flex: 1; min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            background: white; border-bottom: 1px solid var(--border);
+            padding: 0 32px; height: 68px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .topbar-title {
+            font-family: var(--font-display); font-size: 20px; font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .topbar-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 9px 18px; font-size: 13.5px; font-weight: 600;
+            font-family: var(--font-body); color: white;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none; border-radius: 10px; text-decoration: none;
+            cursor: pointer; transition: all 0.2s;
+        }
+
+        .topbar-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,0.3); }
+
+        /* PAGE CONTENT */
+        .page-content { padding: 32px; flex: 1; }
+
+        /* GREETING */
+        .greeting-section { margin-bottom: 32px; }
+        .greeting-section h1 {
+            font-family: var(--font-display); font-size: 30px; font-weight: 800;
+            letter-spacing: -1px; margin-bottom: 6px;
+        }
+        .greeting-section p { font-size: 15px; color: var(--muted); }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px;
+            display: flex; flex-direction: column; gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+
+        .stat-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .stat-card-label { font-size: 13px; font-weight: 500; color: var(--muted); }
+
+        .stat-card-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+
+        .stat-card-value {
+            font-family: var(--font-display); font-size: 36px; font-weight: 800;
+            letter-spacing: -1.5px; line-height: 1;
+        }
+
+        .stat-card-footer { font-size: 12px; color: var(--muted2); }
+
+        /* CONTENT GRID */
+        .content-grid {
+            display: grid; grid-template-columns: 1fr 340px;
+            gap: 20px;
+        }
+
+        .content-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+        }
+
+        .content-card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .content-card-title {
+            font-family: var(--font-display); font-size: 16px; font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .content-card-action {
+            font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 500;
+        }
+
+        .history-empty {
+            padding: 60px 24px; text-align: center; color: var(--muted);
+        }
+
+        .history-empty .empty-icon { font-size: 40px; margin-bottom: 12px; }
+        .history-empty p { font-size: 14px; margin-bottom: 16px; }
+
+        .history-empty a {
+            display: inline-block; padding: 10px 20px;
+            background: var(--accent); color: white; border-radius: 10px;
+            font-size: 13.5px; font-weight: 600; text-decoration: none;
+        }
+
+        /* HISTORY TABLE */
+        .history-table { width: 100%; border-collapse: collapse; }
+
+        .history-table th {
+            padding: 10px 24px; text-align: left; font-size: 11px;
+            font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+            color: var(--muted2); background: #fafafa;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-table td {
+            padding: 16px 24px; font-size: 13.5px; color: var(--ink);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-table tr:last-child td { border-bottom: none; }
+        .history-table tr:hover td { background: #fafafa; }
+
+        .search-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600;
+        }
+
+        .match-pill {
+            display: inline-block; padding: 3px 10px; border-radius: 100px;
+            font-size: 12px; font-weight: 700;
+        }
+
+        .match-high { background: #dcfce7; color: #15803d; }
+        .match-mid { background: #dbeafe; color: #1d4ed8; }
+        .match-low { background: #fef9c3; color: #854d0e; }
+
+        /* QUICK ACTIONS */
+        .quick-actions { display: flex; flex-direction: column; gap: 10px; padding: 20px 24px; }
+
+        .quick-btn {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px; border-radius: 12px;
+            border: 1.5px solid var(--border); background: white;
+            text-decoration: none; color: var(--ink); transition: all 0.2s; cursor: pointer;
+            font-family: var(--font-body);
+        }
+
+        .quick-btn:hover { border-color: var(--accent); background: #eff6ff; }
+
+        .quick-btn-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .quick-btn-text .title { font-size: 14px; font-weight: 600; }
+        .quick-btn-text .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        /* RECENT PRODUCT CHIP */
+        .recent-search-item {
+            padding: 16px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 14px;
+        }
+
+        .recent-search-item:last-child { border-bottom: none; }
+
+        .search-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+        }
+
+        .search-info .type { font-size: 14px; font-weight: 600; }
+        .search-info .detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        .search-score {
+            margin-left: auto; font-family: var(--font-display); font-size: 16px;
+            font-weight: 800;
+        }
+
+        /* LOGOUT */
+        .logout-btn {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-radius: 10px; width: 100%;
+            font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.4);
+            background: none; border: none; cursor: pointer; font-family: var(--font-body);
+            text-align: left; transition: all 0.15s; text-decoration: none;
+        }
+
+        .logout-btn:hover { background: rgba(239,68,68,0.1); color: #fca5a5; }
+
+        @media (max-width: 1100px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .content-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">Reco<span>AI</span></div>
+
+    <div class="sidebar-user">
+        <div class="user-avatar">{{ user.name[0].upper() }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ user.name }}</div>
+            <div class="user-email">{{ user.email }}</div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <span class="nav-section-label">Main</span>
+        <a href="/dashboard" class="nav-item active">
+            <span class="nav-icon">🏠</span> Dashboard
+        </a>
+        <a href="/recommend" class="nav-item">
+            <span class="nav-icon">🔍</span> Find Products
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn">
+            <span>🚪</span> Sign Out
+        </a>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-right">
+            <a href="/recommend" class="topbar-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                New Search
+            </a>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <!-- GREETING -->
+        <div class="greeting-section">
+            <h1>Good day, {{ user.name.split()[0] }}! 👋</h1>
+            <p>Here's what's happening with your RecoAI account.</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Total Products</span>
+                    <div class="stat-card-icon" style="background:#eff6ff;">📦</div>
+                </div>
+                <div class="stat-card-value">{{ stats.total_products }}</div>
+                <div class="stat-card-footer">In our database</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Categories</span>
+                    <div class="stat-card-icon" style="background:#f0fdf4;">🗂️</div>
+                </div>
+                <div class="stat-card-value">{{ stats.total_categories }}</div>
+                <div class="stat-card-footer">Product types indexed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Your Searches</span>
+                    <div class="stat-card-icon" style="background:#fdf4ff;">🔍</div>
+                </div>
+                <div class="stat-card-value">{{ stats.searches_done }}</div>
+                <div class="stat-card-footer">Total searches done</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Avg Match</span>
+                    <div class="stat-card-icon" style="background:#fffbeb;">🎯</div>
+                </div>
+                <div class="stat-card-value">{{ stats.avg_match }}%</div>
+                <div class="stat-card-footer">Average best match score</div>
+            </div>
+        </div>
+
+        <!-- CONTENT GRID -->
+        <div class="content-grid">
+            <!-- SEARCH HISTORY -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <span class="content-card-title">Recent Searches</span>
+                    <a href="/recommend" class="content-card-action">New Search →</a>
+                </div>
+
+                {% if history %}
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Product Type</th>
+                            <th>Budget</th>
+                            <th>Use Case</th>
+                            <th>Results</th>
+                            <th>Best Match</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.product_type or '—' }}</strong>
+                                {% if item.top_result %}
+                                <div style="font-size:12px; color:#71717a; margin-top:2px;">→ {{ item.top_result[:40] }}{% if item.top_result|length > 40 %}...{% endif %}</div>
+                                {% endif %}
+                            </td>
+                            <td>₹{{ '{:,.0f}'.format(item.budget_min) }} – ₹{{ '{:,.0f}'.format(item.budget_max) }}</td>
+                            <td>{{ item.use_case or '—' }}</td>
+                            <td>{{ item.count }} products</td>
+                            <td>
+                                {% set pct = (item.best_match * 100)|round|int %}
+                                <span class="match-pill {% if pct >= 75 %}match-high{% elif pct >= 50 %}match-mid{% else %}match-low{% endif %}">
+                                    {{ pct }}%
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="history-empty">
+                    <div class="empty-icon">🔍</div>
+                    <p>No searches yet. Find your perfect product!</p>
+                    <a href="/recommend">Start Searching →</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <span class="content-card-title">Quick Actions</span>
+                </div>
+                <div class="quick-actions">
+                    <a href="/recommend" class="quick-btn">
+                        <div class="quick-btn-icon" style="background:#eff6ff;">📱</div>
+                        <div class="quick-btn-text">
+                            <div class="title">Find Smartphones</div>
+                            <div class="sub">Compare top phones with AI</div>
+                        </div>
+                    </a>
+                    <a href="/recommend" class="quick-btn">
+                        <div class="quick-btn-icon" style="background:#f0fdf4;">💻</div>
+                        <div class="quick-btn-text">
+                            <div class="title">Discover Laptops</div>
+                            <div class="sub">For work, gaming & students</div>
+                        </div>
+                    </a>
+                    <a href="/recommend" class="quick-btn">
+                        <div class="quick-btn-icon" style="background:#fdf4ff;">🎧</div>
+                        <div class="quick-btn-text">
+                            <div class="title">Explore Headphones</div>
+                            <div class="sub">ANC, audiophile & budget</div>
+                        </div>
+                    </a>
+                    <a href="/recommend" class="quick-btn" style="margin-top:8px; border-color:rgba(37,99,235,0.3); background:linear-gradient(135deg, rgba(37,99,235,0.05), rgba(124,58,237,0.05));">
+                        <div class="quick-btn-icon" style="background:linear-gradient(135deg, #eff6ff, #fdf4ff);">⚡</div>
+                        <div class="quick-btn-text">
+                            <div class="title" style="color:var(--accent)">Custom Search</div>
+                            <div class="sub">Set your exact preferences</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

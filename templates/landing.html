@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecoAI — AI-Powered Product Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #09090b;
+            --ink2: #18181b;
+            --surface: #ffffff;
+            --muted: #71717a;
+            --border: rgba(0,0,0,0.08);
+            --accent: #2563eb;
+            --accent2: #7c3aed;
+            --gold: #f59e0b;
+            --green: #10b981;
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--surface);
+            color: var(--ink);
+            overflow-x: hidden;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 48px; height: 72px;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-family: var(--font-display); font-size: 22px; font-weight: 800;
+            color: var(--ink); text-decoration: none; letter-spacing: -0.5px;
+        }
+
+        .nav-logo .dot {
+            width: 10px; height: 10px; background: var(--accent);
+            border-radius: 50%; display: inline-block;
+        }
+
+        .nav-links {
+            display: flex; align-items: center; gap: 36px; list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 14px; font-weight: 500; color: var(--muted);
+            text-decoration: none; transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--ink); }
+
+        .nav-cta {
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .btn-ghost {
+            padding: 9px 20px; font-size: 14px; font-weight: 500;
+            font-family: var(--font-body); color: var(--ink); background: none;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            text-decoration: none; cursor: pointer; transition: all 0.2s;
+        }
+
+        .btn-ghost:hover { border-color: var(--ink); }
+
+        .btn-solid {
+            padding: 9px 22px; font-size: 14px; font-weight: 600;
+            font-family: var(--font-body); color: white; background: var(--ink);
+            border: none; border-radius: 10px; text-decoration: none;
+            cursor: pointer; transition: all 0.2s;
+        }
+
+        .btn-solid:hover { background: #27272a; transform: translateY(-1px); }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-noise {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+            opacity: 0.4;
+        }
+
+        .hero-grid {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .hero-blob1 {
+            position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(37,99,235,0.12), transparent 70%);
+            top: -100px; right: -100px; pointer-events: none;
+        }
+
+        .hero-blob2 {
+            position: absolute; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(124,58,237,0.08), transparent 70%);
+            bottom: 0; left: -80px; pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 7px 16px; border-radius: 100px;
+            border: 1.5px solid rgba(37,99,235,0.2);
+            background: rgba(37,99,235,0.05);
+            font-size: 13px; font-weight: 500; color: var(--accent);
+            margin-bottom: 32px;
+            animation: fadeUp 0.7s ease both;
+        }
+
+        .hero-badge .pulse {
+            width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.4); }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(52px, 7vw, 92px);
+            font-weight: 800;
+            line-height: 1.0;
+            letter-spacing: -3px;
+            color: var(--ink);
+            max-width: 900px;
+            animation: fadeUp 0.7s 0.1s ease both;
+        }
+
+        .hero h1 .accent-word {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 20px; font-weight: 300; color: var(--muted);
+            max-width: 580px; line-height: 1.7; margin: 28px auto 48px;
+            animation: fadeUp 0.7s 0.2s ease both;
+        }
+
+        .hero-actions {
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeUp 0.7s 0.3s ease both;
+        }
+
+        .btn-hero-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; font-size: 15px; font-weight: 700;
+            font-family: var(--font-body); color: white;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none; border-radius: 14px; text-decoration: none;
+            cursor: pointer; transition: all 0.25s;
+            box-shadow: 0 8px 32px rgba(37,99,235,0.3);
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px rgba(37,99,235,0.4);
+        }
+
+        .btn-hero-secondary {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 16px 32px; font-size: 15px; font-weight: 500;
+            font-family: var(--font-body); color: var(--ink);
+            background: white; border: 1.5px solid var(--border);
+            border-radius: 14px; text-decoration: none; cursor: pointer;
+            transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-hero-secondary:hover { border-color: var(--ink); transform: translateY(-1px); }
+
+        .hero-stats {
+            display: flex; align-items: center; gap: 48px;
+            margin-top: 80px; padding-top: 48px;
+            border-top: 1px solid var(--border);
+            animation: fadeUp 0.7s 0.4s ease both;
+        }
+
+        .stat-item { text-align: center; }
+        .stat-num {
+            font-family: var(--font-display); font-size: 36px; font-weight: 800;
+            letter-spacing: -1.5px; color: var(--ink);
+        }
+        .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+        .stat-divider { width: 1px; height: 48px; background: var(--border); }
+
+        /* MARQUEE */
+        .marquee-section {
+            overflow: hidden; padding: 24px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: var(--ink);
+        }
+
+        .marquee-track {
+            display: flex; gap: 60px; white-space: nowrap;
+            animation: marquee 20s linear infinite;
+        }
+
+        .marquee-item {
+            font-family: var(--font-display); font-size: 13px; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4);
+            display: flex; align-items: center; gap: 16px;
+        }
+
+        .marquee-item .sep { color: rgba(255,255,255,0.15); }
+
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* FEATURES */
+        .section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+        .section-tag {
+            display: inline-block; font-size: 12px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--accent);
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-family: var(--font-display); font-size: 48px; font-weight: 800;
+            letter-spacing: -2px; line-height: 1.1; max-width: 600px;
+        }
+        .section-sub {
+            font-size: 17px; color: var(--muted); line-height: 1.7;
+            max-width: 520px; margin-top: 16px;
+        }
+
+        .features-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; margin-top: 64px;
+        }
+
+        .feature-card {
+            padding: 32px; border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: white;
+            transition: all 0.25s;
+            position: relative; overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(37,99,235,0.03), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.08); }
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-family: var(--font-display); font-size: 20px; font-weight: 700;
+            margin-bottom: 10px; letter-spacing: -0.3px;
+        }
+
+        .feature-card p { font-size: 14.5px; color: var(--muted); line-height: 1.7; }
+
+        /* HOW IT WORKS */
+        .how-section {
+            background: var(--ink); color: white;
+            padding: 100px 48px;
+        }
+
+        .how-inner { max-width: 1200px; margin: 0 auto; }
+
+        .how-section .section-tag { color: var(--gold); }
+        .how-section .section-title { color: white; }
+        .how-section .section-sub { color: rgba(255,255,255,0.5); }
+
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; margin-top: 64px; position: relative;
+        }
+
+        .step-card {
+            padding: 32px 24px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; position: relative;
+        }
+
+        .step-num {
+            font-family: var(--font-display); font-size: 64px; font-weight: 800;
+            color: rgba(255,255,255,0.06); position: absolute; top: 16px; right: 20px;
+        }
+
+        .step-icon { font-size: 32px; margin-bottom: 20px; }
+
+        .step-card h4 {
+            font-family: var(--font-display); font-size: 18px; font-weight: 700;
+            color: white; margin-bottom: 10px;
+        }
+
+        .step-card p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+
+        /* TESTIMONIALS */
+        .testimonials-section { padding: 100px 48px; background: #fafafa; }
+        .testimonials-inner { max-width: 1200px; margin: 0 auto; }
+
+        .testimonials-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; margin-top: 64px;
+        }
+
+        .testimonial-card {
+            background: white; border: 1.5px solid var(--border);
+            border-radius: 20px; padding: 32px;
+        }
+
+        .stars { color: var(--gold); font-size: 16px; margin-bottom: 16px; }
+
+        .testimonial-card p {
+            font-size: 15px; line-height: 1.75; color: var(--ink);
+            margin-bottom: 24px;
+        }
+
+        .testimonial-author {
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .author-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 16px; color: white;
+        }
+
+        .author-name { font-weight: 600; font-size: 14px; }
+        .author-role { font-size: 12px; color: var(--muted); }
+
+        /* CTA */
+        .cta-section {
+            padding: 100px 48px;
+            text-align: center;
+        }
+
+        .cta-inner {
+            max-width: 700px; margin: 0 auto;
+            background: linear-gradient(135deg, var(--ink), #1e1b4b);
+            border-radius: 28px; padding: 80px 60px;
+            position: relative; overflow: hidden;
+        }
+
+        .cta-inner::before {
+            content: ''; position: absolute;
+            width: 400px; height: 400px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(124,58,237,0.3), transparent 70%);
+            top: -100px; right: -100px; pointer-events: none;
+        }
+
+        .cta-inner h2 {
+            font-family: var(--font-display); font-size: 42px; font-weight: 800;
+            color: white; letter-spacing: -1.5px; margin-bottom: 16px;
+        }
+
+        .cta-inner p { font-size: 17px; color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 48px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display); font-size: 18px; font-weight: 800;
+            color: var(--ink); letter-spacing: -0.5px;
+        }
+
+        .footer-copy { font-size: 13px; color: var(--muted); }
+
+        .footer-links { display: flex; gap: 24px; }
+        .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; }
+        .footer-links a:hover { color: var(--ink); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scroll animations */
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 900px) {
+            nav { padding: 0 20px; }
+            .nav-links { display: none; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .steps-grid { grid-template-columns: 1fr 1fr; }
+            .testimonials-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 44px; letter-spacing: -2px; }
+            .hero-stats { gap: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="/" class="nav-logo">Reco<span style="color:var(--accent)">AI</span> <span class="dot"></span></a>
+    <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+    </ul>
+    <div class="nav-cta">
+        <a href="/login" class="btn-ghost">Sign in</a>
+        <a href="/register" class="btn-solid">Get Started →</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-noise"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-blob1"></div>
+    <div class="hero-blob2"></div>
+
+    <div class="hero-badge">
+        <span class="pulse"></span>
+        Powered by Google Gemini 2.5 Flash
+    </div>
+
+    <h1>Find the <span class="accent-word">Perfect Product</span><br>Every Time.</h1>
+    <p class="hero-sub">RecoAI uses advanced AI to analyze thousands of products, match them to your exact needs, and explain why they're right for you — in seconds.</p>
+
+    <div class="hero-actions">
+        <a href="/register" class="btn-hero-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Start for Free
+        </a>
+        <a href="/login" class="btn-hero-secondary">
+            I have an account →
+        </a>
+    </div>
+
+    <div class="hero-stats">
+        <div class="stat-item">
+            <div class="stat-num">13+</div>
+            <div class="stat-label">Products Indexed</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <div class="stat-num">3</div>
+            <div class="stat-label">Categories</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <div class="stat-num">AI</div>
+            <div class="stat-label">Powered Analysis</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <div class="stat-num">100%</div>
+            <div class="stat-label">Unbiased Results</div>
+        </div>
+    </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+    <div class="marquee-track">
+        <span class="marquee-item">Smartphones <span class="sep">·</span></span>
+        <span class="marquee-item">Laptops <span class="sep">·</span></span>
+        <span class="marquee-item">Headphones <span class="sep">·</span></span>
+        <span class="marquee-item">AI-Powered Matching <span class="sep">·</span></span>
+        <span class="marquee-item">Sentiment Analysis <span class="sep">·</span></span>
+        <span class="marquee-item">Budget-Smart <span class="sep">·</span></span>
+        <span class="marquee-item">Real-time Ranking <span class="sep">·</span></span>
+        <span class="marquee-item">Gemini 2.5 Flash <span class="sep">·</span></span>
+        <span class="marquee-item">Smartphones <span class="sep">·</span></span>
+        <span class="marquee-item">Laptops <span class="sep">·</span></span>
+        <span class="marquee-item">Headphones <span class="sep">·</span></span>
+        <span class="marquee-item">AI-Powered Matching <span class="sep">·</span></span>
+        <span class="marquee-item">Sentiment Analysis <span class="sep">·</span></span>
+        <span class="marquee-item">Budget-Smart <span class="sep">·</span></span>
+        <span class="marquee-item">Real-time Ranking <span class="sep">·</span></span>
+        <span class="marquee-item">Gemini 2.5 Flash <span class="sep">·</span></span>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<div id="features">
+    <div class="section">
+        <div class="reveal">
+            <span class="section-tag">Why RecoAI</span>
+            <h2 class="section-title">Not just search.<br>True intelligence.</h2>
+            <p class="section-sub">We go beyond specs and star ratings to understand what you actually need.</p>
+        </div>
+
+        <div class="features-grid reveal">
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#eff6ff;">🧠</div>
+                <h3>Gemini AI Analysis</h3>
+                <p>Every product is analyzed by Google's Gemini 2.5 Flash, extracting key features and understanding context beyond raw specs.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#f0fdf4;">💬</div>
+                <h3>Sentiment Scoring</h3>
+                <p>We analyze thousands of real user reviews to surface genuine pros and cons, not just marketing claims.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#fdf4ff;">📊</div>
+                <h3>Match Score Breakdown</h3>
+                <p>See exactly why a product scores well — budget fit, feature match, use-case relevance, and quality rating, all scored transparently.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#fffbeb;">🎯</div>
+                <h3>Use Case Matching</h3>
+                <p>Tell us if you're a gamer, student, photographer, or traveler. We tailor recommendations to your actual lifestyle.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#fff1f2;">🏷️</div>
+                <h3>Brand Intelligence</h3>
+                <p>Prefer certain brands or want to avoid others? Our engine respects your brand loyalty while still surfacing the best options.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#f0fdfa;">⚡</div>
+                <h3>Instant Explanations</h3>
+                <p>Every recommendation comes with a human-readable AI explanation of exactly why it's the right product for you.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+    <div class="how-inner">
+        <div class="reveal">
+            <span class="section-tag">The Process</span>
+            <h2 class="section-title">From preference to product in 4 steps.</h2>
+            <p class="section-sub">Our AI pipeline runs in real-time to find your perfect match.</p>
+        </div>
+
+        <div class="steps-grid reveal">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <div class="step-icon">📝</div>
+                <h4>Set Preferences</h4>
+                <p>Tell us your budget, product type, required features, and use case. The more you share, the better we match.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <div class="step-icon">🤖</div>
+                <h4>AI Processing</h4>
+                <p>Gemini analyzes each product's specs and reviews, extracting features and running sentiment analysis.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <div class="step-icon">📐</div>
+                <h4>Intelligent Ranking</h4>
+                <p>Our scoring engine computes a multi-factor match score based on budget, features, use case, and quality.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">04</div>
+                <div class="step-icon">✅</div>
+                <h4>Get Results</h4>
+                <p>Receive ranked recommendations with full transparency — exactly why each product is or isn't right for you.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section" id="testimonials">
+    <div class="testimonials-inner">
+        <div class="reveal">
+            <span class="section-tag">Social Proof</span>
+            <h2 class="section-title">People love RecoAI.</h2>
+        </div>
+
+        <div class="testimonials-grid reveal">
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p>"Found the perfect gaming laptop within my budget in under 2 minutes. The match score breakdown was incredibly helpful in understanding exactly what I was getting."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">A</div>
+                    <div>
+                        <div class="author-name">Arjun Sharma</div>
+                        <div class="author-role">Software Engineer, Bangalore</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p>"As a student, budget is everything. RecoAI found me a great smartphone that ticked all my boxes without breaking the bank. The pros/cons analysis was spot on."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">P</div>
+                    <div>
+                        <div class="author-name">Priya Nair</div>
+                        <div class="author-role">B.Tech Student, Chennai</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p>"I was confused between 5 different headphones. RecoAI's AI explanations made the decision obvious. Love that it's honest about trade-offs rather than just hyping products."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">R</div>
+                    <div>
+                        <div class="author-name">Rahul Verma</div>
+                        <div class="author-role">Music Producer, Mumbai</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="cta-inner">
+        <h2>Start Finding Better Products Today.</h2>
+        <p>Free to use. No credit card required. Powered by Gemini AI.</p>
+        <a href="/register" class="btn-hero-primary" style="margin: 0 auto; display:inline-flex;">
+            Create Free Account →
+        </a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-logo">Reco<span style="color:var(--accent)">AI</span></div>
+    <div class="footer-copy">© 2024 RecoAI. Built with Gemini 2.5 Flash + Flask + SQLite</div>
+    <div class="footer-links">
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</footer>
+
+<script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
